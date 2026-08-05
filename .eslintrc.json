@@ -1,0 +1,91 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module"
+  },
+  "plugins": ["@typescript-eslint"],
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+  "rules": {
+    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+    "@typescript-eslint/consistent-type-imports": ["error", { "prefer": "type-imports" }],
+    "@typescript-eslint/explicit-module-boundary-types": "warn"
+  },
+  "overrides": [
+    {
+      "files": ["packages/api-client/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["@framework/contracts", "@framework/contracts/*"],
+                "message": "api-client must remain schema-agnostic — schemas are passed as arguments at the call site in apps/e2e-tests, never imported here"
+              },
+              {
+                "group": ["@framework/ui-core", "@framework/ui-core/*"],
+                "message": "api-client must not depend on ui-core"
+              },
+              {
+                "group": ["../../apps/*", "../../../apps/*"],
+                "message": "packages must not import from apps — dependency direction is apps → packages only"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["packages/contracts/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["@framework/api-client", "@framework/api-client/*"],
+                "message": "contracts must not depend on api-client"
+              },
+              {
+                "group": ["@framework/ui-core", "@framework/ui-core/*"],
+                "message": "contracts must not depend on ui-core"
+              },
+              {
+                "group": ["../../apps/*", "../../../apps/*"],
+                "message": "packages must not import from apps — dependency direction is apps → packages only"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["packages/ui-core/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["@framework/api-client", "@framework/api-client/*"],
+                "message": "ui-core must not depend on api-client"
+              },
+              {
+                "group": ["@framework/contracts", "@framework/contracts/*"],
+                "message": "ui-core must not depend on contracts"
+              },
+              {
+                "group": ["../../apps/*", "../../../apps/*"],
+                "message": "packages must not import from apps — dependency direction is apps → packages only"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "ignorePatterns": ["dist/", "node_modules/"]
+}

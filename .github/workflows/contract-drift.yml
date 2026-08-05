@@ -1,0 +1,40 @@
+name: Contract Drift Detection
+
+on:
+  schedule:
+    # Daily at 06:00 UTC — fires contract tests against the live staging environment.
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  drift-check:
+    name: Detect contract drift vs staging
+    runs-on: ubuntu-latest
+    # No browser needed — contract tests are pure HTTP.
+    env:
+      ENV: staging
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run contract test suite
+        run: npm run -w @framework/e2e-tests test:contract
+
+      - name: Upload drift report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: contract-drift-report-${{ github.run_number }}
+          path: apps/e2e-tests/playwright-report/
+          retention-days: 30
+
+      # GitHub Actions natively surfaces failures as PR annotations (AD-14).
+      # No Slack integration or issue creation in v1.

@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "declaration": false,
+    "declarationMap": false,
+    "composite": false,
+    "paths": {
+      "@framework/api-client": ["../../packages/api-client/src/index.ts"],
+      "@framework/api-client/*": ["../../packages/api-client/src/*"],
+      "@framework/contracts": ["../../packages/contracts/src/index.ts"],
+      "@framework/contracts/*": ["../../packages/contracts/src/*"],
+      "@framework/ui-core": ["../../packages/ui-core/src/index.ts"],
+      "@framework/ui-core/*": ["../../packages/ui-core/src/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "playwright.config.ts"]
+}

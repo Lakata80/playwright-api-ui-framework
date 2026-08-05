@@ -1,0 +1,26 @@
+services:
+  e2e-tests:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    # Non-secret environment variables from the staging config file.
+    # Worker passwords must be set via .env.local (git-ignored) or -e flags.
+    env_file:
+      - ../apps/e2e-tests/src/config/environments/.env.staging
+    environment:
+      CI: 'true'
+      ENV: staging
+      # Worker credentials are loaded from .env.local on the host.
+      # Copy .env.local.example and fill in credentials before running:
+      #   cp apps/e2e-tests/src/config/environments/.env.local.example \
+      #      apps/e2e-tests/src/config/environments/.env.local
+    # Mount output directories so reports are written to the host filesystem.
+    volumes:
+      - ../apps/e2e-tests/playwright-report:/app/apps/e2e-tests/playwright-report
+      - ../apps/e2e-tests/test-results:/app/apps/e2e-tests/test-results
+      # Mount .env.local at runtime for worker credentials (never baked into the image).
+      - ../apps/e2e-tests/src/config/environments/.env.local:/app/apps/e2e-tests/src/config/environments/.env.local:ro
+
+    # Override the default CMD per usage:
+    #   docker compose -f docker/docker-compose.yml run e2e-tests npx playwright test --project=smoke
+    #   docker compose -f docker/docker-compose.yml run e2e-tests npx playwright test --project=api

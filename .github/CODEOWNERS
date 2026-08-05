@@ -1,0 +1,15 @@
+# CODEOWNERS — controls who must approve changes and who receives
+# GitHub Actions annotation triage assignments (AD-14).
+
+# Default: platform team reviews everything not otherwise matched.
+*  @org/qa-platform
+
+# Test files — flaky-quarantine triage ownership routes here via @flaky tag + CODEOWNERS.
+/apps/e2e-tests/src/tests/  @org/qa-engineers
+
+# CI/CD — changes to workflows require platform-team approval.
+/.github/  @org/qa-platform
+
+# Contracts — any schema addition or change must be reviewed by the platform team
+# because drift detection and TypeScript types depend on schema accuracy.
+/packages/contracts/  @org/qa-platform

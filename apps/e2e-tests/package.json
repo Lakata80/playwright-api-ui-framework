@@ -1,0 +1,26 @@
+{
+  "name": "@framework/e2e-tests",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:smoke": "playwright test --project=smoke",
+    "test:regression": "playwright test --project=regression",
+    "test:api": "playwright test --project=api",
+    "test:contract": "playwright test --project=contract",
+    "test:reference-app": "playwright test --project=reference-app",
+    "typecheck": "tsc --noEmit",
+    "seed:workers": "tsx scripts/seed-workers.ts"
+  },
+  "dependencies": {
+    "@framework/api-client": "*",
+    "@framework/contracts": "*",
+    "@framework/ui-core": "*",
+    "dotenv": "^16.4.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.47.0",
+    "allure-playwright": "^3.0.0",
+    "tsx": "^4.19.0"
+  }
+}

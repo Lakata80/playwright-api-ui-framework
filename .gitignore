@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+
+# Environment — only local overrides are git-ignored; .env.staging/.env.production are committed
+.env.local
+.env.*.local
+
+# Playwright artifacts
+playwright/.auth/
+playwright-report/
+test-results/
+
+# Allure
+allure-results/
+allure-report/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/settings.json
+.idea/
+*.swp
+*.swo

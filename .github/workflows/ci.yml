@@ -1,0 +1,198 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gate:
+    name: Build · Typecheck · Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build all packages
+        run: npm run build
+
+      - name: Type-check all workspaces
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Check formatting
+        run: npm run format:check
+
+  api-tests:
+    name: API tests
+    needs: quality-gate
+    runs-on: ubuntu-latest
+    # No browser installation needed — API tests do not launch a browser.
+    env:
+      ENV: staging
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run API test suite
+        run: npm run -w @framework/e2e-tests test:api
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: api-test-report
+          path: apps/e2e-tests/playwright-report/
+          retention-days: 14
+
+  contract-tests:
+    name: Contract tests
+    needs: quality-gate
+    runs-on: ubuntu-latest
+    # No browser installation needed — contract tests do not launch a browser.
+    env:
+      ENV: staging
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run contract test suite
+        run: npm run -w @framework/e2e-tests test:contract
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: contract-test-report
+          path: apps/e2e-tests/playwright-report/
+          retention-days: 14
+
+  smoke-tests:
+    name: Smoke tests
+    needs: quality-gate
+    runs-on: ubuntu-latest
+    env:
+      ENV: staging
+      CI: 'true'
+      WORKER_0_EMAIL: ${{ secrets.WORKER_0_EMAIL }}
+      WORKER_0_PASSWORD: ${{ secrets.WORKER_0_PASSWORD }}
+      WORKER_1_EMAIL: ${{ secrets.WORKER_1_EMAIL }}
+      WORKER_1_PASSWORD: ${{ secrets.WORKER_1_PASSWORD }}
+      WORKER_2_EMAIL: ${{ secrets.WORKER_2_EMAIL }}
+      WORKER_2_PASSWORD: ${{ secrets.WORKER_2_PASSWORD }}
+      WORKER_3_EMAIL: ${{ secrets.WORKER_3_EMAIL }}
+      WORKER_3_PASSWORD: ${{ secrets.WORKER_3_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: pw-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ hashFiles('apps/e2e-tests/package.json') }}
+
+      - name: Install Playwright browsers
+        if: steps.pw-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium --with-deps
+        working-directory: apps/e2e-tests
+
+      - name: Run smoke suite
+        run: npm run -w @framework/e2e-tests test:smoke
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-test-report
+          path: |
+            apps/e2e-tests/playwright-report/
+            apps/e2e-tests/test-results/
+          retention-days: 14
+
+  regression:
+    name: Regression suite
+    needs: smoke-tests
+    # Run only when smoke passes on a direct push to main (not on PRs).
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    env:
+      ENV: staging
+      CI: 'true'
+      WORKER_0_EMAIL: ${{ secrets.WORKER_0_EMAIL }}
+      WORKER_0_PASSWORD: ${{ secrets.WORKER_0_PASSWORD }}
+      WORKER_1_EMAIL: ${{ secrets.WORKER_1_EMAIL }}
+      WORKER_1_PASSWORD: ${{ secrets.WORKER_1_PASSWORD }}
+      WORKER_2_EMAIL: ${{ secrets.WORKER_2_EMAIL }}
+      WORKER_2_PASSWORD: ${{ secrets.WORKER_2_PASSWORD }}
+      WORKER_3_EMAIL: ${{ secrets.WORKER_3_EMAIL }}
+      WORKER_3_PASSWORD: ${{ secrets.WORKER_3_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: pw-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ hashFiles('apps/e2e-tests/package.json') }}
+
+      - name: Install Playwright browsers
+        if: steps.pw-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium --with-deps
+        working-directory: apps/e2e-tests
+
+      - name: Run regression suite
+        run: npm run -w @framework/e2e-tests test:regression
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: regression-test-report
+          path: |
+            apps/e2e-tests/playwright-report/
+            apps/e2e-tests/test-results/
+          retention-days: 30
