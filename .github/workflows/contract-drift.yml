@@ -25,6 +25,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # packages/* export from dist/ — each job needs its own build since runners don't share artifacts.
+      - name: Build packages
+        run: npm run build
+
       - name: Run contract test suite
         run: npm run -w @framework/e2e-tests test:contract
 
