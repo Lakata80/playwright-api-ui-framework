@@ -44,6 +44,9 @@ export default defineConfig({
       testMatch: ['**/tests/ui/**/*.spec.ts', '**/tests/hybrid/**/*.spec.ts'],
       grepInvert: /@smoke|@flaky/,
       retries: process.env['CI'] ? 2 : 0,
+      // 60 s in CI — auth fixture setup navigates a real browser to the login page;
+      // ad-heavy pages on GitHub Actions runners can take longer than 30 s to paint.
+      timeout: process.env['CI'] ? 60_000 : 30_000,
       use: { headless: true },
     },
     {

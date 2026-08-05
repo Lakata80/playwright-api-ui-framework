@@ -20,7 +20,20 @@ export const apiTest = baseTest.extend<ApiFixtures>({
   // eslint-disable-next-line no-empty-pattern
   apiClient: async ({}, use) => {
     const client = new HttpClient(
-      { baseUrl: EnvironmentConfig.apiBaseUrl },
+      {
+        baseUrl: EnvironmentConfig.apiBaseUrl,
+        // automationexercise.com rejects Node.js fetch without browser-like headers:
+        //   • GET endpoints return 200 with an HTML page instead of JSON
+        //   • POST endpoints return 403 (CSRF/Origin check fails)
+        // Sending the same headers a browser would include resolves both issues.
+        defaultHeaders: {
+          Accept: 'application/json, text/plain, */*',
+          Origin: EnvironmentConfig.uiBaseUrl,
+          Referer: `${EnvironmentConfig.uiBaseUrl}/`,
+          'User-Agent':
+            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+        },
+      },
       new Logger(EnvironmentConfig.logLevel, 'api-client'),
     );
     await use(client);

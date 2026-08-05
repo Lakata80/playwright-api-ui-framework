@@ -40,7 +40,15 @@ export const authTest = apiTest.extend<AuthFixtures & UiCoreInternalFixtures, Au
           const ctx = await browser.newContext();
           const p = await ctx.newPage();
 
-          await p.goto(`${EnvironmentConfig.uiBaseUrl}/login`);
+          // domcontentloaded is sufficient — the login form is server-rendered.
+          // Waiting for 'load' blocks on ads and third-party scripts that can
+          // take 20+ seconds on GitHub Actions runners.
+          await p.goto(`${EnvironmentConfig.uiBaseUrl}/login`, {
+            waitUntil: 'domcontentloaded',
+          });
+          // Explicit wait gives the form time to render without being tied to
+          // the default action timeout (which inherits the test timeout).
+          await p.locator('input[data-qa="login-email"]').waitFor({ state: 'visible' });
           await p.locator('input[data-qa="login-email"]').fill(credentials.email);
           await p.locator('input[data-qa="login-password"]').fill(credentials.password);
           await p.locator('button[data-qa="login-button"]').click();
