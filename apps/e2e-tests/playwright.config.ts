@@ -38,7 +38,11 @@ export default defineConfig({
     },
     {
       name: 'regression',
-      grepInvert: /@smoke|@flaky|@contract|@reference-app/,
+      // Scope to UI and hybrid tests only. API tests are fully covered by the dedicated
+      // api-tests CI job, which runs first. Running them again here would duplicate API
+      // calls late in the pipeline and trigger rate-limiting on the reference site.
+      testMatch: ['**/tests/ui/**/*.spec.ts', '**/tests/hybrid/**/*.spec.ts'],
+      grepInvert: /@smoke|@flaky/,
       retries: process.env['CI'] ? 2 : 0,
       use: { headless: true },
     },
