@@ -32,8 +32,9 @@ test.describe('User account lifecycle (hybrid)', () => {
     // Step 2 — API: verify the account exists in the backend
     const getResponse = await userService.getUserByEmail(userData.email);
     expect(getResponse.body.responseCode).toBe(200);
-    expect(getResponse.body.user.email).toBe(userData.email);
-    expect(getResponse.body.user.name).toBe(userData.name);
+    expect(getResponse.body.user).toBeDefined();
+    expect(getResponse.body.user?.email).toBe(userData.email);
+    expect(getResponse.body.user?.name).toBe(userData.name);
 
     // Step 3 — UI: confirm the freshly-created account can log in via browser
     const loginPage = new LoginPage(page);

@@ -23,17 +23,19 @@ export const UserSchema = z.object({
   state: z.string(),
   city: z.string(),
   zipcode: z.string(),
-  mobile_number: z.string(),
+  // API does not always return mobile_number (e.g. when the field was left blank).
+  mobile_number: z.string().optional(),
 });
 
 /**
  * GET /api/getUserDetailByEmail?email=...
- * responseCode 200 includes the user object; 404 includes only message (not modeled here —
- * parse as MessageResponseSchema for the error case).
+ * responseCode 200 includes the user object.
+ * responseCode 404 returns only { responseCode, message } — user is absent.
  */
 export const GetUserResponseSchema = z.object({
   responseCode: z.number(),
-  user: UserSchema,
+  user: UserSchema.optional(),
+  message: z.string().optional(),
 });
 
 export type User = z.infer<typeof UserSchema>;

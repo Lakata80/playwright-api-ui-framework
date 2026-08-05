@@ -21,8 +21,9 @@ test.describe('Users API', () => {
     // Get — response uses birth_day / first_name / last_name (different from request fields)
     const getResponse = await service.getUserByEmail(userData.email);
     expect(getResponse.body.responseCode).toBe(200);
-    expect(getResponse.body.user.email).toBe(userData.email);
-    expect(getResponse.body.user.name).toBe(userData.name);
+    expect(getResponse.body.user).toBeDefined();
+    expect(getResponse.body.user?.email).toBe(userData.email);
+    expect(getResponse.body.user?.name).toBe(userData.name);
   });
 
   test('creating a duplicate account returns responseCode 400', async ({
