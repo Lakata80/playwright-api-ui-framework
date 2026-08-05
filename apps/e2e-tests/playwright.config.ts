@@ -28,7 +28,12 @@ export default defineConfig({
     {
       name: 'smoke',
       grep: /@smoke/,
-      retries: 0,
+      // 1 retry in CI: the reference site occasionally returns a non-JSON response on the
+      // first request (CDN/Cloudflare transient) and UI tests may be slow on cold runners.
+      retries: process.env['CI'] ? 1 : 0,
+      // 60 s in CI — headless Chromium on GitHub Actions can take longer to render pages
+      // through ad networks than local runs.
+      timeout: process.env['CI'] ? 60_000 : 30_000,
       use: { headless: true },
     },
     {

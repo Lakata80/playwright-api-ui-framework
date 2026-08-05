@@ -29,10 +29,13 @@ interface AuthWorkerFixtures {
 export const authTest = apiTest.extend<AuthFixtures & UiCoreInternalFixtures, AuthWorkerFixtures>({
   _storageStatePath: [
     async ({ browser }, use, workerInfo) => {
-      const credentials = EnvironmentConfig.getWorkerCredentials(workerInfo.workerIndex);
+      // parallelIndex is bounded by the workers setting (0..workers-1) and is safe to use
+      // as a slot index. workerIndex is a monotonically increasing counter that can exceed
+      // the workers limit when Playwright restarts worker processes between tests.
+      const credentials = EnvironmentConfig.getWorkerCredentials(workerInfo.parallelIndex);
 
       const statePath = await StorageStateManager.getOrCreate(
-        workerInfo.workerIndex,
+        workerInfo.parallelIndex,
         async (savePath) => {
           const ctx = await browser.newContext();
           const p = await ctx.newPage();

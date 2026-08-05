@@ -15,7 +15,7 @@ test.describe('Login UI', () => {
   test('valid credentials redirect to home and show Logout link @smoke', async ({
     page,
   }, testInfo) => {
-    const credentials = EnvironmentConfig.getWorkerCredentials(testInfo.workerIndex);
+    const credentials = EnvironmentConfig.getWorkerCredentials(testInfo.parallelIndex);
     const loginPage = new LoginPage(page);
     await loginPage.navigate('/login');
     await loginPage.login(credentials.email, credentials.password);
@@ -24,7 +24,7 @@ test.describe('Login UI', () => {
   });
 
   test('logout after login lands on login page', async ({ page }, testInfo) => {
-    const credentials = EnvironmentConfig.getWorkerCredentials(testInfo.workerIndex);
+    const credentials = EnvironmentConfig.getWorkerCredentials(testInfo.parallelIndex);
     const loginPage = new LoginPage(page);
     await loginPage.navigate('/login');
     await loginPage.login(credentials.email, credentials.password);
