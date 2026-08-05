@@ -46,10 +46,15 @@ async function seedWorkers(): Promise<void> {
       schema: CreateUserResponseSchema,
     });
 
-    if (response.body.responseCode === 201) {
+    const alreadyExists =
+      response.body.responseCode === 400 &&
+      response.body.message?.toLowerCase().includes('already exists');
+
+    if (response.body.responseCode === 201 || alreadyExists) {
       emailLines.push(`WORKER_${i}_EMAIL=${payload.email}`);
       passwordLines.push(`WORKER_${i}_PASSWORD=${payload.password}`);
-      console.log(`  ✓ Worker ${i}: ${payload.email}`);
+      const tag = alreadyExists ? '✓ (already exists)' : '✓ created';
+      console.log(`  ${tag} Worker ${i}: ${payload.email}`);
     } else {
       console.error(
         `  ✗ Worker ${i}: responseCode=${response.body.responseCode} — ${response.body.message}`,
