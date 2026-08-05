@@ -16,13 +16,14 @@ jobs:
     env:
       ENV: staging
       CI: 'true'
-      WORKER_0_EMAIL: ${{ secrets.WORKER_0_EMAIL }}
+      # Emails are non-sensitive — hardcoded here. Only passwords go in Secrets.
+      WORKER_0_EMAIL: user_4h93kojajs@testframe.dev
       WORKER_0_PASSWORD: ${{ secrets.WORKER_0_PASSWORD }}
-      WORKER_1_EMAIL: ${{ secrets.WORKER_1_EMAIL }}
+      WORKER_1_EMAIL: user_ds8qt1qosc@testframe.dev
       WORKER_1_PASSWORD: ${{ secrets.WORKER_1_PASSWORD }}
-      WORKER_2_EMAIL: ${{ secrets.WORKER_2_EMAIL }}
+      WORKER_2_EMAIL: user_goyb02dnsf@testframe.dev
       WORKER_2_PASSWORD: ${{ secrets.WORKER_2_PASSWORD }}
-      WORKER_3_EMAIL: ${{ secrets.WORKER_3_EMAIL }}
+      WORKER_3_EMAIL: user_uoyv4gwpu3@testframe.dev
       WORKER_3_PASSWORD: ${{ secrets.WORKER_3_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
