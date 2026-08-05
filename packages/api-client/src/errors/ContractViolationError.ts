@@ -9,9 +9,10 @@ export class ContractViolationError extends Error {
   constructor(
     public readonly url: string,
     public readonly issues: readonly ZodIssue[],
+    bodySnippet = '',
   ) {
     const summary = issues.map((issue) => `[${issue.path.join('.')}] ${issue.message}`).join('; ');
-    super(`Contract violation at ${url}: ${summary}`);
+    super(`Contract violation at ${url}: ${summary}${bodySnippet}`);
     this.name = 'ContractViolationError';
   }
 }
