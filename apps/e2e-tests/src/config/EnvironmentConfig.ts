@@ -4,14 +4,14 @@ import { z } from 'zod';
 import type { LogLevel } from '@framework/api-client';
 
 const ENV_DIR = path.join(__dirname, 'environments');
-const activeEnv = process.env['ENV'] ?? 'local';
+const activeEnv = process.env['ENV'] ?? 'staging';
 
 // Load environment-specific non-secret vars first, then let .env.local override.
 loadDotenv({ path: path.join(ENV_DIR, `.env.${activeEnv}`), override: false });
 loadDotenv({ path: path.join(ENV_DIR, '.env.local'), override: true });
 
 const ConfigSchema = z.object({
-  env: z.enum(['staging', 'production', 'local']).default('local'),
+  env: z.enum(['staging', 'production', 'local']).default('staging'),
   apiBaseUrl: z.string().url(),
   uiBaseUrl: z.string().url(),
   logLevel: z.enum(['DEBUG', 'INFO', 'WARN', 'ERROR'] as [LogLevel, ...LogLevel[]]).default('INFO'),

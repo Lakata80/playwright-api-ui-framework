@@ -256,11 +256,12 @@ export class HttpClient {
   }
 
   private async parseBody(response: Response): Promise<unknown> {
-    const contentType = response.headers.get('content-type') ?? '';
-    if (contentType.includes('application/json')) {
-      return response.json() as Promise<unknown>;
+    const text = await response.text();
+    try {
+      return JSON.parse(text) as unknown;
+    } catch {
+      return text;
     }
-    return response.text();
   }
 
   private resolveUrl(path: string): string {
