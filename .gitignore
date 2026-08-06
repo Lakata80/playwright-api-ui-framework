@@ -3,6 +3,7 @@ node_modules/
 
 # Build outputs
 dist/
+*.tsbuildinfo
 
 # Environment — only local overrides are git-ignored; .env.staging/.env.production are committed
 .env.local
