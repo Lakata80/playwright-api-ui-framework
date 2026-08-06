@@ -1,7 +1,11 @@
 import { test, expect } from '../../fixtures';
+import { isSiteBlocked, SITE_SKIP_REASON } from '../../fixtures/waf-check';
 import { ProductListPage } from '../../pages/ProductListPage';
 
 test.describe('Products UI', () => {
+  test.beforeAll(async () => {
+    test.skip(await isSiteBlocked(), SITE_SKIP_REASON);
+  });
   test('products page loads and shows products @smoke', async ({ authenticatedPage }) => {
     const listPage = new ProductListPage(authenticatedPage);
     await listPage.navigate('/products');

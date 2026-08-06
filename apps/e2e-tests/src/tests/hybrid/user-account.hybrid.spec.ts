@@ -7,11 +7,15 @@
  *   [API]  Cleanup via testDataCleanup (delete account after test)
  */
 import { test, expect } from '../../fixtures';
+import { isSiteBlocked, SITE_SKIP_REASON } from '../../fixtures/waf-check';
 import { UserApiService } from '../../services/api/UserApiService';
 import { LoginPage } from '../../pages/LoginPage';
 import { EnvironmentConfig } from '../../config/EnvironmentConfig';
 
 test.describe('User account lifecycle (hybrid)', () => {
+  test.beforeAll(async () => {
+    test.skip(await isSiteBlocked(), SITE_SKIP_REASON);
+  });
   test('API create → API verify → UI login → UI logout', async ({
     page,
     apiClient,

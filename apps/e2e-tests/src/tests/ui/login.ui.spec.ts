@@ -1,8 +1,12 @@
 import { test, expect } from '../../fixtures';
+import { isSiteBlocked, SITE_SKIP_REASON } from '../../fixtures/waf-check';
 import { LoginPage } from '../../pages/LoginPage';
 import { EnvironmentConfig } from '../../config/EnvironmentConfig';
 
 test.describe('Login UI', () => {
+  test.beforeAll(async () => {
+    test.skip(await isSiteBlocked(), SITE_SKIP_REASON);
+  });
   test('wrong credentials show an error message', async ({ page }) => {
     const loginPage = new LoginPage(page);
     await loginPage.navigate('/login');

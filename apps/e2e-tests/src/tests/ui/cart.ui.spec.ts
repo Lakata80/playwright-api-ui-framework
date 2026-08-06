@@ -1,10 +1,14 @@
 import { test, expect } from '../../fixtures';
+import { isSiteBlocked, SITE_SKIP_REASON } from '../../fixtures/waf-check';
 import { ProductListPage } from '../../pages/ProductListPage';
 import { ProductDetailPage } from '../../pages/ProductDetailPage';
 import { CartPage } from '../../pages/CartPage';
 import { AddToCartModal } from '../../components/AddToCartModal';
 
 test.describe('Cart UI', () => {
+  test.beforeAll(async () => {
+    test.skip(await isSiteBlocked(), SITE_SKIP_REASON);
+  });
   // Each test uses authenticatedPage which shares the server-side session (same worker
   // credentials). Clearing the cart before each test prevents cross-test pollution.
   test.beforeEach(async ({ authenticatedPage }) => {
