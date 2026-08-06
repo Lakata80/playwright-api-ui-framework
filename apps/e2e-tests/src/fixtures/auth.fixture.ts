@@ -40,11 +40,12 @@ export const authTest = apiTest.extend<AuthFixtures & UiCoreInternalFixtures, Au
           const ctx = await browser.newContext();
           const p = await ctx.newPage();
 
-          // domcontentloaded is sufficient — the login form is server-rendered.
-          // Waiting for 'load' blocks on ads and third-party scripts that can
-          // take 20+ seconds on GitHub Actions runners.
+          // Use 'load' (not 'domcontentloaded') so that Cloudflare's JS challenge
+          // has time to execute and redirect to the real login page before we
+          // start waiting for form elements. On GitHub Actions, 'domcontentloaded'
+          // resolves on the challenge page itself, leaving the email input invisible.
           await p.goto(`${EnvironmentConfig.uiBaseUrl}/login`, {
-            waitUntil: 'domcontentloaded',
+            waitUntil: 'load',
           });
           // Explicit wait gives the form time to render without being tied to
           // the default action timeout (which inherits the test timeout).

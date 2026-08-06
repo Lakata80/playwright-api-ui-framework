@@ -28,10 +28,19 @@ export const apiTest = baseTest.extend<ApiFixtures>({
         // Sending the same headers a browser would include resolves both issues.
         defaultHeaders: {
           Accept: 'application/json, text/plain, */*',
+          'Accept-Language': 'en-US,en;q=0.9',
           Origin: EnvironmentConfig.uiBaseUrl,
           Referer: `${EnvironmentConfig.uiBaseUrl}/`,
           'User-Agent':
             'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+          // Sec-* headers that real Chromium sends on every fetch — Cloudflare WAF
+          // inspects these to distinguish browser requests from Node.js fetch.
+          'sec-ch-ua': '"Chromium";v="128", "Not;A=Brand";v="24", "Google Chrome";v="128"',
+          'sec-ch-ua-mobile': '?0',
+          'sec-ch-ua-platform': '"Linux"',
+          'sec-fetch-dest': 'empty',
+          'sec-fetch-mode': 'cors',
+          'sec-fetch-site': 'same-origin',
         },
       },
       new Logger(EnvironmentConfig.logLevel, 'api-client'),

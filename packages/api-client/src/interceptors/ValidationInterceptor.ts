@@ -15,13 +15,16 @@ export class ValidationInterceptor implements Interceptor {
 
     const result = config.schema.safeParse(response.rawBody);
     if (!result.success) {
-      // Include a body snippet when rawBody is a string — this surfaces the actual
-      // server response (e.g. an HTML challenge page) in the test failure output,
-      // which would otherwise only show the Zod path error.
+      // Include a body snippet in the error — this surfaces the actual server
+      // response (HTML challenge page or unexpected JSON) alongside the Zod path.
+      // JSON objects are serialised so Cloudflare/WAF block payloads are visible.
+      const rawBody = response.rawBody;
       const bodySnippet =
-        typeof response.rawBody === 'string'
-          ? ` | rawBody[0..300]: ${(response.rawBody as string).slice(0, 300)}`
-          : '';
+        typeof rawBody === 'string'
+          ? ` | rawBody[0..300]: ${rawBody.slice(0, 300)}`
+          : rawBody !== null && typeof rawBody === 'object'
+            ? ` | rawBody: ${JSON.stringify(rawBody).slice(0, 300)}`
+            : '';
       throw new ContractViolationError(config.url, result.error.issues, bodySnippet);
     }
 

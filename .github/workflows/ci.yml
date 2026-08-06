@@ -109,6 +109,10 @@ jobs:
     env:
       ENV: staging
       CI: 'true'
+      # Reduce to 2 workers so the smoke suite sends fewer simultaneous requests to
+      # automationexercise.com, lowering the chance of triggering Cloudflare rate-limits
+      # (the api-tests and contract-tests jobs run in parallel on the same runner pool).
+      MAX_WORKERS: '2'
       # Emails are non-sensitive — hardcoded here. Only passwords go in Secrets.
       WORKER_0_EMAIL: user_4h93kojajs@testframe.dev
       WORKER_0_PASSWORD: ${{ secrets.WORKER_0_PASSWORD }}

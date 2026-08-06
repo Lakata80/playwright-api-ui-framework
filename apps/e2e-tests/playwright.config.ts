@@ -28,13 +28,20 @@ export default defineConfig({
     {
       name: 'smoke',
       grep: /@smoke/,
-      // 1 retry in CI: the reference site occasionally returns a non-JSON response on the
-      // first request (CDN/Cloudflare transient) and UI tests may be slow on cold runners.
-      retries: process.env['CI'] ? 1 : 0,
-      // 60 s in CI — headless Chromium on GitHub Actions can take longer to render pages
-      // through ad networks than local runs.
+      // 2 retries in CI: Cloudflare on automationexercise.com occasionally challenges
+      // requests from datacenter IPs; a second retry gives the challenge time to resolve.
+      retries: process.env['CI'] ? 2 : 0,
+      // 60 s in CI — auth fixture must navigate through a Cloudflare JS challenge before
+      // the real login page renders, which can take several seconds.
       timeout: process.env['CI'] ? 60_000 : 30_000,
-      use: { headless: true },
+      use: {
+        headless: true,
+        launchOptions: {
+          // Remove navigator.webdriver so Cloudflare's JS challenge does not
+          // immediately identify the browser as automated and serve a CAPTCHA.
+          args: ['--disable-blink-features=AutomationControlled'],
+        },
+      },
     },
     {
       name: 'regression',
