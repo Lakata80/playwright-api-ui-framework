@@ -1,8 +1,12 @@
 import { test, expect } from '../../fixtures';
+import { isWafBlocked, WAF_SKIP_REASON } from '../../fixtures/waf-check';
 import { AuthApiService } from '../../services/api/AuthApiService';
 import { UserApiService } from '../../services/api/UserApiService';
 
 test.describe('Auth API', () => {
+  test.beforeAll(async () => {
+    test.skip(await isWafBlocked(), WAF_SKIP_REASON);
+  });
   test('POST /api/verifyLogin with unknown credentials returns responseCode 404 @smoke', async ({
     apiClient,
   }) => {

@@ -1,7 +1,11 @@
 import { test, expect } from '../../fixtures';
+import { isWafBlocked, WAF_SKIP_REASON } from '../../fixtures/waf-check';
 import { ProductApiService } from '../../services/api/ProductApiService';
 
 test.describe('Products API', () => {
+  test.beforeAll(async () => {
+    test.skip(await isWafBlocked(), WAF_SKIP_REASON);
+  });
   test('GET /api/productsList returns non-empty list @smoke', async ({ apiClient }) => {
     const service = new ProductApiService(apiClient);
     const response = await service.listAll();

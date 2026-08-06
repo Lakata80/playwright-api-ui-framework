@@ -8,6 +8,7 @@
  * Run on a schedule via contract-drift.yml CI workflow.
  */
 import { test, expect } from '../../fixtures';
+import { isWafBlocked, WAF_SKIP_REASON } from '../../fixtures/waf-check';
 import {
   ProductListResponseSchema,
   SearchProductResponseSchema,
@@ -15,6 +16,9 @@ import {
 } from '@framework/contracts';
 
 test.describe('Product + Brand schema contracts @contract', () => {
+  test.beforeAll(async () => {
+    test.skip(await isWafBlocked(), WAF_SKIP_REASON);
+  });
   test('GET /api/productsList matches ProductListResponseSchema', async ({ apiClient }) => {
     const response = await apiClient.get('/api/productsList', {
       schema: ProductListResponseSchema,

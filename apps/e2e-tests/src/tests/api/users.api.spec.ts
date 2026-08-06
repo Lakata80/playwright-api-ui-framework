@@ -1,7 +1,11 @@
 import { test, expect } from '../../fixtures';
+import { isWafBlocked, WAF_SKIP_REASON } from '../../fixtures/waf-check';
 import { UserApiService } from '../../services/api/UserApiService';
 
 test.describe('Users API', () => {
+  test.beforeAll(async () => {
+    test.skip(await isWafBlocked(), WAF_SKIP_REASON);
+  });
   test('create → get → delete user lifecycle @smoke', async ({
     apiClient,
     userFactory,

@@ -3,10 +3,14 @@
  * Both success (200) and failure (404) responses must match VerifyLoginResponseSchema.
  */
 import { test, expect } from '../../fixtures';
+import { isWafBlocked, WAF_SKIP_REASON } from '../../fixtures/waf-check';
 import { VerifyLoginResponseSchema } from '@framework/contracts';
 import { UserApiService } from '../../services/api/UserApiService';
 
 test.describe('Auth schema contracts @contract', () => {
+  test.beforeAll(async () => {
+    test.skip(await isWafBlocked(), WAF_SKIP_REASON);
+  });
   test('POST /api/verifyLogin 404 body matches VerifyLoginResponseSchema', async ({
     apiClient,
   }) => {
