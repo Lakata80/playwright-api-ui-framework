@@ -14,6 +14,9 @@ jobs:
     env:
       ENV: staging
       CI: 'true'
+      # Cap to 2 workers so the drift check doesn't saturate automationexercise.com
+      # from a single GitHub Actions runner (default 4 workers → Imunify360 blocks).
+      MAX_WORKERS: '2'
     steps:
       - uses: actions/checkout@v4
 

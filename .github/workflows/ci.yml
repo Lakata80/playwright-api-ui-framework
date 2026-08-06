@@ -45,6 +45,9 @@ jobs:
     env:
       ENV: staging
       CI: 'true'
+      # api-tests and contract-tests run in parallel; cap each to 2 workers so the
+      # combined load stays at 4 and Imunify360 doesn't block the runner IP.
+      MAX_WORKERS: '2'
     steps:
       - uses: actions/checkout@v4
 
@@ -78,6 +81,10 @@ jobs:
     env:
       ENV: staging
       CI: 'true'
+      # api-tests and contract-tests run in parallel after quality-gate; combined they
+      # double the concurrent requests to automationexercise.com. Cap each job to 2
+      # workers so the total stays at 4 and Imunify360 doesn't block the runner IP.
+      MAX_WORKERS: '2'
     steps:
       - uses: actions/checkout@v4
 

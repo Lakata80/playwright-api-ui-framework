@@ -65,7 +65,9 @@ export default defineConfig({
       name: 'contract',
       testDir: './src/tests/contract',
       grep: /@contract/,
-      retries: process.env['CI'] ? 1 : 0,
+      // 2 retries in CI: Imunify360 on automationexercise.com occasionally blocks
+      // datacenter IPs on the first attempt; retries give the WAF time to settle.
+      retries: process.env['CI'] ? 2 : 0,
     },
     {
       name: 'reference-app',
