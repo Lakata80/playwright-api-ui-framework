@@ -28,6 +28,10 @@ export default defineConfig({
     {
       name: 'smoke',
       grep: /@smoke/,
+      // Scope to UI and hybrid tests only. @smoke-tagged API tests are already run by
+      // the dedicated api-tests CI job. Including them here too causes double-execution
+      // on the same runner IPs, which saturates Imunify360 and blocks both jobs.
+      testMatch: ['**/tests/ui/**/*.spec.ts', '**/tests/hybrid/**/*.spec.ts'],
       // 2 retries in CI: Cloudflare on automationexercise.com occasionally challenges
       // requests from datacenter IPs; a second retry gives the challenge time to resolve.
       retries: process.env['CI'] ? 2 : 0,
