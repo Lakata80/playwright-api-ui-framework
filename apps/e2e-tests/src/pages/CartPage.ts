@@ -1,3 +1,4 @@
+import { expect } from '@playwright/test';
 import { BasePage } from '@framework/ui-core';
 import type { Locator, Page } from '@framework/ui-core';
 
@@ -17,11 +18,31 @@ export class CartPage extends BasePage {
   }
 
   override async waitForLoad(): Promise<void> {
-    await this.cartTable.waitFor({ state: 'visible' });
+    // Waits for either the cart table (non-empty) or the empty-cart notice.
+    await this.page.locator('#cart_info_table, #empty_cart').first().waitFor({ state: 'visible' });
   }
 
   async getItemCount(): Promise<number> {
     return this.cartRows.count();
+  }
+
+  /** Playwright-native assertion: retries until the row count matches. */
+  async waitForItemCount(count: number): Promise<void> {
+    await expect(this.cartRows).toHaveCount(count);
+  }
+
+  /**
+   * Removes every item from the cart. Safe to call on an empty cart.
+   * Used in beforeEach to ensure each cart test starts from a clean state.
+   */
+  async clearAll(): Promise<void> {
+    if (await this.page.locator('#empty_cart').isVisible()) return;
+
+    while ((await this.cartRows.count()) > 0) {
+      const firstRow = this.cartRows.first();
+      await firstRow.locator('td.cart_delete a').click();
+      await firstRow.waitFor({ state: 'detached' });
+    }
   }
 
   async getItemName(rowIndex: number): Promise<string> {
