@@ -63,7 +63,7 @@ export default defineConfig({
     {
       name: 'api',
       testDir: './src/tests/api',
-      retries: process.env['CI'] ? 1 : 0,
+      retries: process.env['CI'] ? 2 : 0,
     },
     {
       name: 'contract',

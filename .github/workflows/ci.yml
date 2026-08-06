@@ -45,9 +45,10 @@ jobs:
     env:
       ENV: staging
       CI: 'true'
-      # api-tests and contract-tests run in parallel; cap each to 2 workers so the
-      # combined load stays at 4 and Imunify360 doesn't block the runner IP.
-      MAX_WORKERS: '2'
+      # 1 worker = fully sequential requests. Even 2 simultaneous requests from a
+      # GitHub Actions IP burst fast enough to trigger Imunify360 on
+      # automationexercise.com, causing all remaining tests to receive the block page.
+      MAX_WORKERS: '1'
     steps:
       - uses: actions/checkout@v4
 
@@ -75,15 +76,14 @@ jobs:
 
   contract-tests:
     name: Contract tests
-    needs: quality-gate
+    # Run after api-tests, not in parallel: two simultaneous API jobs from the same
+    # runner IP range saturate Imunify360 and block all requests in both jobs.
+    needs: api-tests
     runs-on: ubuntu-latest
     # No browser installation needed — contract tests do not launch a browser.
     env:
       ENV: staging
       CI: 'true'
-      # api-tests and contract-tests run in parallel after quality-gate; combined they
-      # double the concurrent requests to automationexercise.com. Cap each job to 2
-      # workers so the total stays at 4 and Imunify360 doesn't block the runner IP.
       MAX_WORKERS: '2'
     steps:
       - uses: actions/checkout@v4
