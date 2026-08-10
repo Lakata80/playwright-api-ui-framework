@@ -1,9 +1,6 @@
 name: Reference App Tests
 
 on:
-  schedule:
-    # Nightly at 02:00 UTC — third-party uptime should not block PR merges.
-    - cron: '0 2 * * *'
   workflow_dispatch:
 
 # This workflow is NOT in the required-checks list for PRs.
