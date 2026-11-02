@@ -1,5 +1,7 @@
 # Playwright API + UI Contract Testing Framework
 
+[![CI](https://github.com/Lakata80/playwright-api-ui-framework/actions/workflows/ci.yml/badge.svg)](https://github.com/Lakata80/playwright-api-ui-framework/actions/workflows/ci.yml)
+
 A production-ready, reusable Playwright monorepo that co-enforces REST API contract correctness and UI behaviour in a single test suite. Built for commercial client projects; uses [automationexercise.com](https://automationexercise.com) as the v1 reference application.
 
 ## Package overview
@@ -12,6 +14,16 @@ A production-ready, reusable Playwright monorepo that co-enforces REST API contr
 | `apps/e2e-tests`      | All test suites, fixtures, page objects, services, and configuration                  |
 
 **Dependency direction is strictly one-way:** `apps` → `packages`. Enforced at lint time via ESLint `no-restricted-imports`. See [docs/architecture.md](docs/architecture.md) for full details.
+
+```
+playwright-api-ui-framework/
+├── packages/
+│   ├── api-client/        # Schema-agnostic HTTP client
+│   ├── contracts/         # Zod schemas (workspace-internal)
+│   └── ui-core/           # BasePage, BaseComponent, fixtures
+└── apps/
+    └── e2e-tests/         # All suites, page objects, data
+```
 
 ---
 
@@ -206,5 +218,11 @@ docker compose -f docker/docker-compose.yml run e2e-tests \
 | [ADR-002](docs/adr/ADR-002-bearer-token-auth-strategy.md) | Bearer token via Strategy pattern; per-worker storageState |
 | [ADR-003](docs/adr/ADR-003-reference-application.md)      | automationexercise.com as reference application            |
 | [ADR-004](docs/adr/ADR-004-package-publishing.md)         | Package publishing deferred to post-v1                     |
+
+**Why Zod-first schemas?** Hand-authored Zod schemas over OpenAPI codegen keeps contract definitions co-located with tests, gives compile-time type safety across API and UI layers, and avoids the generated-code drift that silently breaks CI.
+
+**Why Bearer token Strategy pattern?** Auth is injected as a pluggable `AuthStrategy` so individual tests never call login endpoints directly — this isolates auth complexity, enables per-worker `storageState` caching, and makes swapping auth mechanisms per environment a one-line fixture change.
+
+**Why Playwright fixtures?** Fixtures compose the full test context (authenticated client, page objects, pre-seeded data) declaratively — each test states what it needs, not how to set it up. This eliminates setup copy-paste and makes parallel isolation trivially safe.
 
 See [docs/architecture.md](docs/architecture.md) for the full architectural narrative.
