@@ -4,6 +4,22 @@
 
 A production-ready, reusable Playwright monorepo that co-enforces REST API contract correctness and UI behaviour in a single test suite. Built for commercial client projects; uses [automationexercise.com](https://automationexercise.com) as the v1 reference application.
 
+## Quick start
+
+```sh
+npm ci && npm run -w @framework/e2e-tests test:api
+```
+
+No credentials or browser required — API tests run against automationexercise.com out of the box.
+For UI tests and full setup, see [Getting started](#getting-started).
+
+## What this demonstrates
+
+- **API + UI contract testing** — Zod schemas are the single source of truth for API response shapes; `@contract` tests validate live responses on every CI run
+- **Monorepo architecture** — three workspace packages with enforced one-way dependency direction (`apps` → `packages`), each independently testable
+- **CI quality gates** — five-job pipeline where API + contract + smoke must pass before regression runs; third-party WAF failures skip gracefully without blocking PRs
+- **Parallel worker isolation** — each Playwright worker authenticates with a dedicated pre-seeded account, eliminating credential contention at any concurrency level
+
 ## Package overview
 
 | Package               | Role                                                                                  |
@@ -149,11 +165,11 @@ Each Playwright worker authenticates using a dedicated pre-seeded account to pre
 
 ## CI/CD
 
-| Workflow                                                     | Trigger                   | Required PR check |
-| ------------------------------------------------------------ | ------------------------- | ----------------- |
-| [`ci.yml`](.github/workflows/ci.yml)                         | Push / PR to `main`       | Yes               |
-| [`contract-drift.yml`](.github/workflows/contract-drift.yml) | Nightly 06:00 UTC, manual | No                |
-| [`reference-app.yml`](.github/workflows/reference-app.yml)   | Nightly 02:00 UTC, manual | No                |
+| Workflow                                                     | Trigger                    | Required PR check |
+| ------------------------------------------------------------ | -------------------------- | ----------------- |
+| [`ci.yml`](.github/workflows/ci.yml)                         | Push / PR to `main`        | Yes               |
+| [`contract-drift.yml`](.github/workflows/contract-drift.yml) | Manual (workflow_dispatch) | No                |
+| [`reference-app.yml`](.github/workflows/reference-app.yml)   | Manual (workflow_dispatch) | No                |
 
 **Required PR checks** (configure in branch protection rules):
 
@@ -163,6 +179,14 @@ Each Playwright worker authenticates using a dedicated pre-seeded account to pre
 - `smoke-tests`
 
 The `regression` job runs only on push to `main` (after smoke passes). Third-party uptime issues on automationexercise.com never block PR merges — they are isolated to the nightly workflows.
+
+---
+
+## Known limitations
+
+**WAF / bot-protection on automationexercise.com.** The reference application is occasionally protected by Imunify360 or Cloudflare challenge pages when accessed from GitHub Actions runners. When this happens, the WAF-check fixture detects the block and marks the affected suite as `skipped` rather than `failed` — so CI stays green but reports 0 tests executed for that run.
+
+This is a deliberate trade-off: treating a third-party infrastructure block as a test failure would make the CI unreliable for PR gating. The correct long-term fix — running contract tests against a local mock server — is scoped for a future iteration. In the meantime, you can re-run a blocked CI job manually once the WAF clears, or run the full suite locally at any time.
 
 ---
 
