@@ -15,7 +15,7 @@ For UI tests and full setup, see [Getting started](#getting-started).
 
 ## What this demonstrates
 
-- **API + UI contract testing** — Zod schemas are the single source of truth for API response shapes; `@contract` tests validate live responses on every CI run
+- **API + UI contract testing** — Zod schemas are the single source of truth for API response shapes; `@contract` tests validate live responses on every CI run when the reference app is reachable (see [Known limitations](#known-limitations))
 - **Monorepo architecture** — three workspace packages with enforced one-way dependency direction (`apps` → `packages`), each independently testable
 - **CI quality gates** — five-job pipeline where API + contract + smoke must pass before regression runs; third-party WAF failures skip gracefully without blocking PRs
 - **Parallel worker isolation** — each Playwright worker authenticates with a dedicated pre-seeded account, eliminating credential contention at any concurrency level
@@ -250,3 +250,9 @@ docker compose -f docker/docker-compose.yml run e2e-tests \
 **Why Playwright fixtures?** Fixtures compose the full test context (authenticated client, page objects, pre-seeded data) declaratively — each test states what it needs, not how to set it up. This eliminates setup copy-paste and makes parallel isolation trivially safe.
 
 See [docs/architecture.md](docs/architecture.md) for the full architectural narrative.
+
+---
+
+## Author
+
+**Lazar Endarov** — QA / Quality Engineering Lead · [LinkedIn](https://www.linkedin.com/in/lazar-endarov-32b27b3a/)
